@@ -3,24 +3,32 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import toast from "react-hot-toast";
+import { useForm, SubmitHandler } from "react-hook-form";
 
 import { auth } from "../services";
 
 import CustomInput from "./custom-input";
 
 const SigninForm = () => {
-  const [user, setUser] = useState({
-    email: "",
-    password: "",
-  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
 
-  const handleSubmit = async () => {
+  interface IUser {
+    email: string;
+    password: string;
+  }
+
+  const {
+    register,
+    formState: { isValid },
+    handleSubmit,
+  } = useForm<IUser>();
+
+  const onSubmit: SubmitHandler<IUser> = async (data) => {
     try {
       setIsSubmitting(true);
-      await signInWithEmailAndPassword(auth, user.email, user.password);
+      await signInWithEmailAndPassword(auth, data.email, data.password);
       toast.success("Successfully signed in 🔥");
 
       router.push("todos");
@@ -44,21 +52,23 @@ const SigninForm = () => {
 
       <div className="mb-4">
         <CustomInput
+          required
           label="Email"
+          name="email"
           placeholder="Example@email.com"
-          onChange={({ target }) =>
-            setUser((state) => ({ ...state, email: target.value }))
-          }
+          register={register}
+          rules={{ required: true }}
         />
       </div>
 
       <CustomInput
+        required
         type="password"
+        name="password"
         label="Password"
         placeholder="At least 8 characters"
-        onChange={({ target }) =>
-          setUser((state) => ({ ...state, password: target.value }))
-        }
+        register={register}
+        rules={{ required: true }}
       />
 
       <div className="flex justify-end text-sm text-blue-600 font-medium py-4">
@@ -67,10 +77,10 @@ const SigninForm = () => {
 
       <button
         className={`bg-gray-900 text-white w-full h-[44px] rounded-xl ${
-          isSubmitting ? "cursor-not-allowed !bg-gray-500" : ""
+          isSubmitting || !isValid ? "cursor-not-allowed !bg-gray-500" : ""
         }`}
-        disabled={isSubmitting}
-        onClick={handleSubmit}
+        disabled={isSubmitting || !isValid}
+        onClick={handleSubmit(onSubmit)}
       >
         {isSubmitting ? "Signing in..." : "Sign in"}
       </button>

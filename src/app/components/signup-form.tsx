@@ -2,33 +2,44 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-
-import { auth } from "../services";
+import { SubmitHandler, useForm } from "react-hook-form";
 import {
   createUserWithEmailAndPassword,
   updateProfile,
   User,
 } from "firebase/auth";
 
+import { auth } from "../services";
+
 import CustomInput from "./custom-input";
 
 const SignupForm = () => {
-  const [user, setUser] = useState({
-    displayName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
 
-  const handleSubmit = async () => {
+  interface IUser {
+    displayName: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }
+
+  const {
+    register,
+    formState: { isValid },
+    handleSubmit,
+    watch,
+  } = useForm<IUser>();
+
+  const password = watch("password");
+
+  const onSubmit: SubmitHandler<IUser> = async (data) => {
     try {
       setIsSubmitting(true);
-      await createUserWithEmailAndPassword(auth, user.email, user.password);
+      await createUserWithEmailAndPassword(auth, data.email, data.password);
       await updateProfile(auth.currentUser as User, {
-        displayName: user.displayName,
+        displayName: data.displayName,
       });
 
       toast.success("Successfully signed up 🔥");
@@ -52,42 +63,49 @@ const SignupForm = () => {
 
       <div className="mb-4">
         <CustomInput
+          required
           label="Name"
+          name="displayName"
           placeholder="John Doe"
-          onChange={({ target }) =>
-            setUser((state) => ({ ...state, displayName: target.value }))
-          }
+          register={register}
+          rules={{ required: true }}
         />
       </div>
 
       <div className="mb-4">
         <CustomInput
+          required
           label="Email"
+          name="email"
           placeholder="Example@email.com"
-          onChange={({ target }) =>
-            setUser((state) => ({ ...state, email: target.value }))
-          }
+          register={register}
+          rules={{ required: true }}
         />
       </div>
 
       <div className="mb-4">
         <CustomInput
+          required
           label="Password"
+          name="password"
           type="password"
           placeholder="At least 8 characters"
-          onChange={({ target }) =>
-            setUser((state) => ({ ...state, password: target.value }))
-          }
+          register={register}
+          rules={{ required: true }}
         />
       </div>
 
       <CustomInput
+        required
         label="Confirm Password"
+        name="confirmPassword"
         type="password"
         placeholder="Confirm password"
-        onChange={({ target }) =>
-          setUser((state) => ({ ...state, confirmPassword: target.value }))
-        }
+        register={register}
+        rules={{
+          required: true,
+          validate: (value: string) => value === password,
+        }}
       />
 
       <div className="flex justify-end text-sm text-blue-600 font-medium py-4">
@@ -96,10 +114,10 @@ const SignupForm = () => {
 
       <button
         className={`bg-gray-900 text-white w-full h-[44px] rounded-xl ${
-          isSubmitting ? "cursor-not-allowed !bg-gray-500" : ""
+          isSubmitting || !isValid ? "cursor-not-allowed !bg-gray-500" : ""
         }`}
-        disabled={isSubmitting}
-        onClick={handleSubmit}
+        disabled={isSubmitting || !isValid}
+        onClick={handleSubmit(onSubmit)}
       >
         {isSubmitting ? "Signing up..." : "Sign up"}
       </button>

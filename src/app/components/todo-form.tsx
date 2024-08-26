@@ -70,8 +70,11 @@ const TodoForm = (props: IProps) => {
         </div>
 
         <button
-          className="w-full h-[44px] rounded-xl mt-10 bg-[#571032] text-white font-medium text-sm"
+          className={`w-full h-[44px] rounded-xl mt-10 bg-[#571032] text-white font-medium text-sm ${
+            !todo.name || !todo.date ? "cursor-not-allowed bg-pink-300" : ""
+          }`}
           onClick={handleSubmit}
+          disabled={!todo.name || !todo.date}
         >
           {isLoading ? "Loading..." : "Submit"}
         </button>
