@@ -33,9 +33,10 @@ DESIGNS:[Figma](<https://www.figma.com/design/j33roGeDIyLJK0yJJm4EPB/Cooking-Tem
 
 ## Deployment
 
-This App was deployed with [Vercel](https://vercel.com/)
+This App was deployed with [Vercel](https://savannah-test-2.vercel.app/)
 
 ## Lastly
 
 I am always available for feedback.
+
 # savannah-test-2
