@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "react-hot-toast";
+import { Suspense } from "react";
+// import { onAuthStateChanged } from "firebase/auth";
+// import { auth } from "./services";
+
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -14,9 +19,30 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // onAuthStateChanged(auth, (user) => {
+  //   if (user) {
+  //     // User is signed in, see docs for a list of available properties
+  //     // https://firebase.google.com/docs/reference/js/auth.user
+  //     const uid = user.uid;
+  //     console.log("======>", uid);
+  //     // ...
+  //   } else {
+  //     // User is signed out
+  //     // ...
+  //   }
+  // });
+
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <Suspense fallback={<div>Loading...</div>}>
+          <>
+            <Toaster position="top-center" />
+
+            {children}
+          </>
+        </Suspense>
+      </body>
     </html>
   );
 }
